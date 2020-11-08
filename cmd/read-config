@@ -1,0 +1,114 @@
+#!/bin/bash
+
+echo ""
+echo "************** RUN READ CONFIG ***************"
+echo ""
+
+# check below variables and update if it's needed
+INGRESS_CONFIG_SERVER=config-server
+JQ_DOWNLOAD_URL=https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+
+echo "STEP1. Get parameters "
+# get parameters
+if ([ $# -lt 2 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "read-config <profile> <root directory>"
+  echo " profile: 배포대상 환경 프로파일(ex:dev, prod) "
+  echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
+  echo " ex) ./read-config prod ~/work"
+  echo " ex) ./read-config prod ."
+  exit 1
+fi
+
+profile=$1
+basedir=$2
+appname=`cat ${basedir}/pom.xml | grep \<name\> | cut -d ">" -f2 | cut -d "<" -f1`
+if [ "${appname}" == "" ]; then
+	echo "CAN'T get application name. check <name> in pom.xml"
+	exit 1
+fi
+
+function mkFile() {
+	#echo "Donwload config file: ${fn} from ${url}"
+
+  	wget -O ${fn} ${url}
+  	if [ $? -eq 1 ]; then
+    	echo "Fail to downloade: ${url}"
+    	return 1
+  	fi
+
+  	len=`./jq '.propertySources | length' ${fn}`
+  	for ((i=0;i<$len;i++));
+  	do
+    	nm=`./jq ".propertySources[$i].name" ${fn}`
+    	if [[ "$nm" =~ ".properties" ]]; then
+      		#echo "$i => $nm"
+
+      		chk=`./jq ".propertySources[$i].source" ${fn} > $i-${fn}`
+      		if [ $? -eq 0 ]; then
+        		len2=`./jq "keys | length" $i-${fn}`
+
+        		for ((j=0;j<$len2;j++))
+        		do
+          			key=`./jq -r "keys[$j]" $i-${fn}`
+          			val=`./jq -r ".[\"$key\"]" $i-${fn}`
+          			echo "$key=$val" >> ${ofn}
+        		done
+      		fi
+    	fi
+	done
+}
+
+# install jq
+echo "STEP2. Check jq program and install it if not"
+chk=`which ./jq`
+if [ $? -eq 1 ]; then
+  wget -O jq ${JQ_DOWNLOAD_URL}
+  chmod +x ./jq
+  echo "jq installed"
+fi
+
+# get config-server ingress host
+echo "STEP4. Get config server ingress host "
+host=`kubectl get ing ${INGRESS_CONFIG_SERVER} -o yaml | grep host: | cut -d ":" -f 2 | tr -d " "`
+if [ "${host}" == "" ]; then
+	echo "CAN't get config server ingress address"
+	exit 1
+fi
+
+url=""
+fn=""
+uri="http://${host}/${appname}"
+
+# generate deployment config file
+echo "STEP5. Generate deployment config file "
+fn=config.json
+url=${uri}/cicd-common,cicd-${profile}
+ofn=${basedir}/cicd/config.properties
+echo "" > ${ofn}
+
+mkFile
+
+
+# generate configmap file
+echo "STEP6. Generate configmap file "
+fn=cm.json
+url=${uri}/cm-common,cm-${profile}
+ofn=${basedir}/cicd/configmap.env
+echo "" > ${ofn}
+
+mkFile
+
+
+# generate secret file
+echo "STEP7. Generate secret file "
+fn=secret.json
+url=${uri}/secret-common,secret-${profile}
+ofn=${basedir}/cicd/secret.env
+echo "" > ${ofn}
+
+mkFile
+
+echo ""
+echo "************** END READ CONFIG ***************"
+echo ""
+exit 0

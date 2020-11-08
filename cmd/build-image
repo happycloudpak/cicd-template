@@ -1,0 +1,49 @@
+#!/bin/bash
+
+echo "************* BUILD&PUSH Container image *****************"
+echo "STEP1: Get Parameters"
+
+# get parameters
+if ([ $# -lt 3 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "build-image <reg username> <reg password> <root directory>"
+  echo " reg username: container image registry username "
+  echo " reg password: container image registry password "
+  echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
+  echo " ex) ./build-image user1 password1 ~/work"
+  echo " ex) ./build-image user1 password1 ."
+  exit 2
+fi
+
+username=$1
+password=$2
+basedir=$3
+echo ""
+
+# set variables from config.properties: converted from '.' to '_'
+echo "STEP2. Set environment variables "
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/config-common.properties)
+echo ""
+
+# build image
+echo "STEP3. Build image "
+echo "image: ${image_registry}/${image_project}/${image_repository}:${image_tag}"
+docker build --build-arg ARTIFACTORY_FILE=${image_repository}.jar -f ${basedir}/cicd/Dockerfile -t ${image_registry}/${image_project}/${image_repository}:${image_tag} ${basedir}
+echo ""
+
+# login image registry to push image: parameters are provided from bamboo pipeline.
+echo "STEP4. Login & Push image "
+docker login ${image_registry} -u  ${username} -p ${password}
+if [ $? == 1 ]; then
+  echo "****** FAIL to login image registry: username is $1"
+  exit 2
+fi
+
+# clone image as 'latest'
+docker tag ${image_registry}/${image_project}/${image_repository}:${image_tag} ${image_registry}/${image_project}/${image_repository}:latest
+
+# push them
+docker push ${image_registry}/${image_project}/${image_repository}:${image_tag}
+docker push ${image_registry}/${image_project}/${image_repository}:latest
+
+exit 0
+

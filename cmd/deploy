@@ -1,0 +1,150 @@
+#!/bin/bash
+
+echo "************* DEPLOY service *****************"
+
+######## functions ############
+RETURN=""
+function generate-cm() {
+	RETURN="OK"
+	if [ -f ${filepath} ]; then
+		kubectl get configmap ${cm} 2> /dev/null
+		if [ $? -eq 0 ]; then
+	  		kubectl delete configmap ${cm}
+		fi
+		kubectl create configmap ${cm} --from-env-file=${filepath}
+		if [ $? -eq 1 ]; then
+	  		echo "FAIL to create configmap ${cm}"
+	  		RETURN="NK"
+		fi
+	fi
+}
+
+function generate-secret() {
+	RETURN="OK"
+	if [ -f ${filepath} ]; then
+		kubectl get secret ${secret} 2> /dev/null
+		if [ $? -eq 0 ]; then
+	  		kubectl delete secret ${secret}
+		fi
+		kubectl create secret generic ${secret} --from-env-file=${filepath}
+		if [ $? -eq 1 ]; then
+	  		echo "FAIL to create secret ${secret}"
+	  		RETURN="NK"
+		fi
+	fi
+}
+
+# get parameters
+echo "STEP1: Get Parameters"
+
+if ([ $# -lt 3 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "deploy <k8s-context> <profile> <root directory>"
+  echo " k8s-context: 사용할 k8s context명. kubectl config view로 context 목록 확인. '.'은 현재 컨텍스트 의미함 "
+  echo " profile: 배포대상 환경 프로파일(ex:dev, prod) "
+  echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
+  echo " ex) ./deploy kubernetes-admin@kubernetes prod ~/work"
+  echo " ex) ./deploy . prod ."
+  exit 2
+fi
+
+context=$1
+profile=$2
+basedir=$3
+
+if [ "${context}" == "." ]; then
+	context=`kubectl config current-context`
+fi
+
+deploy_kind="Deployment"
+lists=`cat ${basedir}/cicd/deploy.yaml | grep "kind: " | cut -d ":" -f2 | tr -d " "`
+for kind in ${lists}
+do
+	if [ "${kind}" == "Deployment" ] || [ "${kind}" == "StatefulSet" ]; then
+		deploy_kind=${kind}
+                break
+	fi
+done
+
+echo ""
+ 
+# set variables from config.properties: converted from '.' to '_'
+echo "STEP2. Set environment variables "
+
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/config-common.properties)
+if [ "${profile}" != "" ]; then
+	eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/config-${profile}.properties)
+fi
+echo ""
+
+# switch kubenetes context
+echo "STEP3. Switch to kubernetes context "
+
+kubectl config use-context ${context}
+echo ""
+
+# check current version
+echo "STEP4. Delete application if same version exists "
+
+CURTAG=$(kubectl get ${deploy_kind} ${image_repository} -o yaml 2> /dev/null | grep "image: ${image_registry}/${image_project}/${image_repository}:" | cut -d ':' -f3)
+echo "FIND CURRENT VERSION: ${CURTAG}"
+
+# 동일한 서비스의 동일한 버전이 있으면 변경내용 반영위해 기존 deployment 삭제
+if [ $? -eq 0 ] && [ "${CURTAG}" == "${image_tag}" ]; then
+    echo "[${image_repository}] Same version(${image_tag}) service exists!"
+
+    kubectl delete ${deploy_kind} --selector="app=${image_repository}"
+fi
+echo ""
+
+# configmap revise
+echo "STEP5. Create ConfigMap "
+
+cm="${image_repository}-cm-common"
+filepath=${basedir}/cicd/env/cm-common.env
+generate-cm
+if [ "${RESULT}" == "NK" ]; then exit 2; fi
+
+cm="${image_repository}-cm-${profile}"
+filepath=${basedir}/cicd/env/cm-${profile}.env
+generate-cm
+if [ "${RESULT}" == "NK" ]; then exit 2; fi
+
+echo ""
+
+# secret revise
+echo "STEP6. Create Secret "
+
+secret="${image_repository}-secret-common"
+filepath=${basedir}/cicd/env/secret-common.env
+generate-secret
+if [ "${RESULT}" == "NK" ]; then exit 2; fi
+
+secret="${image_repository}-secret-${profile}"
+filepath=${basedir}/cicd/env/secret-${profile}.env
+generate-secret
+if [ "${RESULT}" == "NK" ]; then exit 2; fi
+
+echo ""
+
+# deploy.yaml을 이용하여 배포 yaml생성
+echo "STEP7. Deploy application "
+
+IMG="${image_registry}\/${image_project}\/${image_repository}:${image_tag}"
+sed "s@{{ SERVICE_NAME }}@${image_repository}@g" ${basedir}/cicd/deploy.yaml | \
+sed "s@{{ NAMESPACE }}@${namespace}@g" - | \
+sed "s@{{ SERVICEACCOUNT }}@${serviceaccount}@g" - | \
+sed "s@{{ IMAGE_NAME }}@${IMG}@g" - | \
+sed "s@{{ SERVICE_TARGET_PORT }}@${service_target_port}@g" - | \
+sed "s@{{ SERVICE_PORT }}@${service_port}@g" - | \
+sed "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" - | \
+sed "s@{{ EUREKA_SERVERS }}@${eureka_servers}@g" - | \
+sed "s@{{ PROFILE }}@${profile}@g" - | \
+sed "s@{{ SERVICE_HOST }}@${service_host}@g" - > ${basedir}/cicd/deploy-converted.yaml
+
+if [ $? -eq 0 ]; then
+    kubectl apply -f ${basedir}/cicd/deploy-converted.yaml
+else
+    echo "******** FAIL to convert deployment yaml !!! ******** "
+fi
+
+exit 0

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# get parameters
+filepath=$1
+
+# set variables from config.properties
+function setEnv() {
+    y=$(echo $line | grep "=")
+    if [ $? -eq 0 ]; then
+        key=$(echo $line | cut -d "=" -f1 | tr -d " " | sed "s@\.@_@g")
+        val=$(echo $line | cut -d "=" -f2)
+        echo "${key}=${val}"
+    fi
+}
+
+while read line
+do
+  x=$(echo $line | grep "#")
+  if [ $? -eq 1 ]; then
+	setEnv
+  fi 
+done < ${filepath} 
+if [ "$line" != "" ]; then
+	setEnv
+fi
+
+exit 0

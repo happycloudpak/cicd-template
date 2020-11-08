@@ -1,0 +1,64 @@
+#!/bin/bash
+
+echo "************** CLEAR All resources **********$*******"
+echo ""
+
+# get parameters
+if ([ $# -lt 1 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "clear-all <root directory>"
+  echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
+  echo " ex) ./clear-all ~/work"
+  echo " ex) ./clear-all ."
+  exit 2
+fi
+
+basedir=$1
+yaml=${basedir}/cicd/deploy-converted.yaml
+
+resource_kind=""
+resource_postfix=""
+
+function clearCMSecret() {
+	nm=${app}-${resource_postfix}
+	echo "try to delete=>${nm}"
+	kubectl get ${resource_kind} ${nm} 2> /dev/null
+	if [ $? -eq 0 ]; then
+  		kubectl delete ${resource_kind} ${nm}
+	fi
+}
+
+
+# delete using deploy yaml
+kubectl delete -f ${yaml} 2> /dev/null
+
+# get app name
+tmp=`cat ${yaml} | grep app: | cut -d ":" -f2 | tr -d " "`
+apps=(${tmp})
+app=${apps[0]}
+
+# delete configmap
+resource_kind=configmap
+resource_postfix=cm-common
+clearCMSecret
+
+resource_postfix=cm-dev
+clearCMSecret
+
+resource_postfix=cm-prod
+clearCMSecret
+
+# delete secret
+resource_kind=secret
+resource_postfix=secret-common
+clearCMSecret
+
+resource_postfix=secret-dev
+clearCMSecret
+
+resource_postfix=secret-prod
+clearCMSecret
+
+echo ""
+echo "************* All resources CLEARED *****************"
+
+exit 0

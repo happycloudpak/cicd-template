@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# get parameters
+if ([ $# -lt 5 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "run-all <reg username> <reg password> <k8s-context> <profile> <root directory>"
+  echo " reg username: container image registry username "
+  echo " reg password: container image registry password "
+  echo " k8s-context: 사용할 k8s context명. kubectl config view로 context 목록 확인. '.'은 현재 컨텍스트 의미함 "
+  echo " profile: 배포대상 환경 프로파일(ex:dev, prod)"  
+  echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
+  echo " ex) ./run-all user1 password1 kubernetes-admin@kubernetes prod ~/work"
+  echo " ex) ./run-all user1 password1 . prod ."
+  exit 2
+fi
+
+username=$1
+password=$2
+context=$3
+profile=$4
+basedir=$5
+
+# build artifactory
+${basedir}/mvnw clean package
+if [ $? -eq 1 ]; then exit 2; fi
+
+# build & push
+${basedir}/cicd/cmd/build-image ${username} ${password} ${basedir}
+if [ $? -eq 1 ]; then exit 2; fi
+
+# deploy
+${basedir}/cicd/cmd/deploy ${context} ${profile} ${basedir} 
+if [ $? -eq 1 ]; then exit 2; fi
+
+echo ""
+exit 0
