@@ -5,6 +5,5 @@ This repository contains below stuff.
 - Dockerfile samples 
 - CI/CD Shell 
 
-Feel free 
 Don't be use them for commercial purpose.   
 
