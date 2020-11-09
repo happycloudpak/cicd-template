@@ -23,8 +23,8 @@ do
     fn=${lists[ ${#lists[@]}-1 ]}
     if [[ "${fn}" =~ "${from_svc}" ]]; then
       y=`echo ${fn} | sed s/${from_svc}/${to_svc}/g`
-      echo "$x => ${workdir}/$y"
-      mv $x ${workdir}/$y
+      echo "$x => $y"
+      mv ${workdir}/$x ${workdir}/$y
     fi
   fi
 done
