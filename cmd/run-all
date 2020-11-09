@@ -35,7 +35,7 @@ if [ $? -eq 1 ]; then
 fi
 
 # download other shells and templates
-${cmdpath}/dn-utils cmd/build-image,cmd/clear-all,cmd/deploy,cmd/read-config,cmd/set-env ${cmdpath}
+${cmdpath}/dn-utils cmd/build-image,cmd/clear-all,cmd/deploy,cmd/set-env ${cmdpath}
 ${cmdpath}/dn-utils dockerfile/Dockerfile ${basepath}/cicd
 ${cmdpath}/dn-utils deploy/deploy.yaml ${basepath}/cicd
 
