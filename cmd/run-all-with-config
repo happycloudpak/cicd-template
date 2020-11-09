@@ -22,6 +22,23 @@ context=$3
 profile=$4
 basedir=$5
 
+# download shell if it's not exists
+cmdpath=${basedir}/cicd/cmd
+which ${cmdpath}/dn-utils 2> /dev/null
+if [ $? -eq 1 ]; then
+	mkdir -p ${cmdpath} 2> /dev/null
+	wget -O ${cmdpath}/dn-utils https://happycloudpak.github.io/cicd-template/cmd/dn-utils
+	if [ $? -eq 1 ]; then
+		echo "CAN'T download ${cmdpath}/dn-utils"
+		exit 1
+	fi
+fi
+
+# download other shells and templates
+${cmdpath}/dn-utils cmd/build-image-with-config,cmd/clear-all-with-config,cmd/deploy-with-config,cmd/read-config,cmd/set-env ${cmdpath}
+${cmdpath}/dn-utils dockerfile/Dockerfile ${basepath}/cicd
+${cmdpath}/dn-utils deploy/deploy-with-config.yaml ${basepath}/cicd
+
 # build artifactory
 ${basedir}/mvnw clean package
 if [ $? -eq 1 ]; then exit 1; fi
