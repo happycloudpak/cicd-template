@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# download web page uri
+DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
+
+# get parameters
+if ([ $# -lt 2 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "dn-utils <fileuri> <target directory> <executable>"
+  echo " fileuri: download file uri. you can define multiple files using comma. "
+  echo " target directory: download location "
+  echo " executable: make it executable file or not. 0 is default. "
+  echo " ex) ./dn-utils cmd/deploy,cmd/deploy-with-config ./cicd/cmd 1"
+  echo " ex) ./dn-utils deploy.yaml ./cicd"
+  exit 1
+fi
+
+fileuri=$1
+targetdir=$2
+if [ $# -eq 3 ]; then
+	executable=$3
+else
+	executable=0
+fi
+
+function dnFile() {
+
+	echo "Donwload file: ${uri} to ${targetdir}/${fn}"
+
+	url=${DOWNLOAD_URI}/${uri}
+
+        mkdir -p ${targetdir} 2> /dev/null
+
+  	wget -O ${targetdir}/${fn} ${url}
+  	if [ $? -eq 1 ]; then
+    		echo "Fail to downloade: ${url}"
+    		return 1
+  	fi
+
+	if [ ${executable} -eq 1 ]; then chmod +x ${targetdir}/${fn}; fi
+	return 0
+}
+
+fn=""
+uri=""
+
+# split files
+IFS="," read -a files <<< ${fileuri}
+
+for ((i=0;i<${#files[@]};i++))
+do
+	uri=${files[i]}
+
+	if [[ "${uri}" =~ "/" ]]; then
+  		IFS="/" read -a lists <<< ${uri}
+  		len=${#lists[@]}
+  		fn=${lists[$len-1]}
+	else
+  		fn=${fileuri}
+	fi
+	chk=`which ${targetdir}/${fn}`
+
+	if [ $? -eq 1 ]; then
+  		dnFile
+	fi
+done
+
+exit 0
