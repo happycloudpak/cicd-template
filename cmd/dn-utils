@@ -57,11 +57,13 @@ do
 	else
   		fn=${fileuri}
 	fi
-	chk=`which ${targetdir}/${fn}`
-
-	if [ $? -eq 1 ]; then
-  		dnFile
-	fi
+	
+	if [ -f ${targetdir}/${fn} ]; then
+		echo "${targetdir}/${fn} => Exists"
+	else
+		echo "${targetdir}/${fn} => NOT exists"
+		dnFile
+	fi	
 done
 
 exit 0
