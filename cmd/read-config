@@ -10,17 +10,19 @@ JQ_DOWNLOAD_URL=https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux
 
 echo "STEP1. Get parameters "
 # get parameters
-if ([ $# -lt 2 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
-  echo "read-config <profile> <root directory>"
+if ([ $# -lt 3 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "read-config <profile> <root directory> <config kinds>"
   echo " profile: 배포대상 환경 프로파일(ex:dev, prod) "
   echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
-  echo " ex) ./read-config prod ~/work"
-  echo " ex) ./read-config prod ."
+  echo " config kinds: 읽은 config 종류로 cicd,cm,secret중 지정하며, comma로 복수값 지정 가능함 "
+  echo " ex) ./read-config prod ~/worki cicd,cm,secret"
+  echo " ex) ./read-config prod . cicd"
   exit 1
 fi
 
 profile=$1
 basedir=$2
+config_kinds=$3
 appname=`cat ${basedir}/pom.xml | grep \<name\> | cut -d ">" -f2 | cut -d "<" -f1`
 if [ "${appname}" == "" ]; then
 	echo "CAN'T get application name. check <name> in pom.xml"
@@ -79,34 +81,20 @@ url=""
 fn=""
 uri="http://${host}/${appname}"
 
-# generate deployment config file
-echo "STEP5. Generate deployment config file "
-fn=config.json
-url=${uri}/cicd-common,cicd-${profile}
-ofn=${basedir}/cicd/config.properties
-echo "" > ${ofn}
+# generage file depends on config kind
+echo "STEP5. Generate config file "
 
-mkFile
+configs=`echo ${config_kinds} | sed "s/,/ /g"`
+for kind in ${configs}
+do
+  echo "read config ->  ${kind}"
+  fn=${kind}.json
+  url=${uri}/${kind}-common,${kind}-${profile}
+  ofn=${basedir}/cicd/${kind}.properties
+  echo "" > ${ofn}
 
-
-# generate configmap file
-echo "STEP6. Generate configmap file "
-fn=cm.json
-url=${uri}/cm-common,cm-${profile}
-ofn=${basedir}/cicd/configmap.env
-echo "" > ${ofn}
-
-mkFile
-
-
-# generate secret file
-echo "STEP7. Generate secret file "
-fn=secret.json
-url=${uri}/secret-common,secret-${profile}
-ofn=${basedir}/cicd/secret.env
-echo "" > ${ofn}
-
-mkFile
+  mkFile
+done
 
 echo ""
 echo "************** END READ CONFIG ***************"
