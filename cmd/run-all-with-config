@@ -44,7 +44,7 @@ ${basedir}/mvnw clean package
 if [ $? -eq 1 ]; then exit 1; fi
 
 # read configuration
-${basedir}/cicd/cmd/read-config ${profile} ${basedir}
+${basedir}/cicd/cmd/read-config ${profile} ${basedir} cicd
 if [ $? -eq 1 ]; then exit 1; fi
 
 # build & push
