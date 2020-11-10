@@ -74,6 +74,10 @@ echo ""
 echo "STEP2. Set environment variables "
 eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cicd.properties)
 
+# read configuration
+${basedir}/cicd/cmd/read-config ${profile} ${basedir} cm,secret
+if [ $? -eq 1 ]; then exit 1; fi
+    
 echo ""
 
 # switch kubenetes context
@@ -100,7 +104,7 @@ echo ""
 echo "STEP5. Create ConfigMap "
 
 cm="${image_repository}-cm"
-filepath=${basedir}/cicd/configmap.env
+filepath=${basedir}/cicd/cm.properties
 generate-cm
 if [ "${RESULT}" == "NK" ]; then exit 1; fi
 
@@ -110,7 +114,7 @@ echo ""
 echo "STEP6. Create Secret "
 
 secret="${image_repository}-secret"
-filepath=${basedir}/cicd/secret.env
+filepath=${basedir}/cicd/secret.properties
 generate-secret
 if [ "${RESULT}" == "NK" ]; then exit 1; fi
 
@@ -132,10 +136,6 @@ sed "s@{{ PROFILE }}@${profile}@g" - | \
 sed "s@{{ SERVICE_HOST }}@${service_host}@g" - > ${basedir}/cicd/deploy-converted.yaml
 
 if [ $? -eq 0 ]; then
-    # read configuration
-    ${basedir}/cicd/cmd/read-config ${profile} ${basedir} cm,secret
-    if [ $? -eq 1 ]; then exit 1; fi
-
     kubectl apply -f ${basedir}/cicd/deploy-converted.yaml
 else
     echo "******** FAIL to convert deployment yaml !!! ******** "
