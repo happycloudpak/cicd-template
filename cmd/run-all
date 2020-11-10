@@ -32,12 +32,13 @@ if [ $? -eq 1 ]; then
 		echo "CAN'T download ${cmdpath}/dn-utils"
 		exit 1
 	fi
+	chmod +x ${cmdpath}/dn-utils
 fi
 
 # download other shells and templates
-${cmdpath}/dn-utils cmd/build-image,cmd/clear-all,cmd/deploy,cmd/set-env ${cmdpath}
-${cmdpath}/dn-utils dockerfile/Dockerfile ${basepath}/cicd
-${cmdpath}/dn-utils deploy/deploy.yaml ${basepath}/cicd
+${cmdpath}/dn-utils cmd/build-image,cmd/clear-all,cmd/deploy,cmd/set-env ${cmdpath} 1
+${cmdpath}/dn-utils dockerfile/Dockerfile ${basepath}/cicd 0
+${cmdpath}/dn-utils deploy/deploy.yaml ${basepath}/cicd 0
 
 # build artifactory
 ${basedir}/mvnw clean package
