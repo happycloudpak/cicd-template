@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#VERSION:1.0
 # download web page uri
 DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 
