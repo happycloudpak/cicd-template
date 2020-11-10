@@ -69,15 +69,10 @@ do
 done
 
 echo ""
- 
+
 # set variables from config.properties: converted from '.' to '_'
 echo "STEP2. Set environment variables "
-
-# read configuration
-${basedir}/cicd/cmd/read-config ${profile} ${basedir}
-if [ $? -eq 1 ]; then exit 1; fi
-
-eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config.properties)
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cicd.properties)
 
 echo ""
 
@@ -137,6 +132,10 @@ sed "s@{{ PROFILE }}@${profile}@g" - | \
 sed "s@{{ SERVICE_HOST }}@${service_host}@g" - > ${basedir}/cicd/deploy-converted.yaml
 
 if [ $? -eq 0 ]; then
+    # read configuration
+    ${basedir}/cicd/cmd/read-config ${profile} ${basedir} cm,secret
+    if [ $? -eq 1 ]; then exit 1; fi
+
     kubectl apply -f ${basedir}/cicd/deploy-converted.yaml
 else
     echo "******** FAIL to convert deployment yaml !!! ******** "
