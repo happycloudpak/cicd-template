@@ -36,9 +36,11 @@ if [ $? -eq 1 ]; then
 fi
 
 # download other shells and templates
-${cmdpath}/dn-utils cmd/build-image-with-config,cmd/clear-all-with-config,cmd/deploy-with-config,cmd/read-config,cmd/set-env ${cmdpath} 1
-${cmdpath}/dn-utils dockerfile/Dockerfile ${basedir}/cicd 0
-${cmdpath}/dn-utils deploy/deploy-with-config.yaml ${basedir}/cicd 0
+${cmdpath}/dn-utils version.ini ${basedir} 0 ${basedir}
+
+${cmdpath}/dn-utils cmd/build-image-with-config,cmd/clear-all-with-config,cmd/deploy-with-config,cmd/read-config,cmd/set-env ${cmdpath} 1 ${basedir}
+${cmdpath}/dn-utils dockerfile/Dockerfile ${basedir}/cicd 0 ${basedir}
+${cmdpath}/dn-utils deploy/deploy-with-config.yaml ${basedir}/cicd 0 ${basedir}
 
 # build artifactory
 ${basedir}/mvnw clean package
