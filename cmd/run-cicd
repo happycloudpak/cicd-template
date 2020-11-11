@@ -1,4 +1,5 @@
 #!/bin/bash
+#VERSION:1.0
 
 # get parameters
 read -p "# container image registry 로그인 username: " username
