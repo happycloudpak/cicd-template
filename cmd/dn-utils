@@ -58,7 +58,10 @@ do
   		fn=${fileuri}
 	fi
 
-	if [ -f ${targetdir}/${fn} ]; then
+	if [ "${fn}" == "version.ini" ]; then
+		echo "${targetdir}/${fn} => START download version file"
+		dnFile
+	elif [ -f ${targetdir}/${fn} ]; then
 		ver_local=""
 		ver_server=""
 		ver_local=`cat ${targetdir}/${fn} | grep "#VERSION:" | cut -d ":" -f 2 | tr -d " " 2> /dev/null`
