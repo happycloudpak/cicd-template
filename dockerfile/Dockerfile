@@ -1,3 +1,4 @@
+#VERSION:1.0
 FROM openjdk:8-jdk-alpine
 
 ARG ARTIFACTORY_FILE
