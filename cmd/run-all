@@ -39,8 +39,8 @@ fi
 ${cmdpath}/dn-utils version.ini ${basedir} 0 ${basedir}
 
 ${cmdpath}/dn-utils cmd/build-image,cmd/clear-all,cmd/deploy,cmd/set-env ${cmdpath} 1 ${basedir}
-${cmdpath}/dn-utils dockerfile/Dockerfile ${basepath}/cicd 0 ${basedir}
-${cmdpath}/dn-utils deploy/deploy.yaml ${basepath}/cicd 0 ${basedir}
+${cmdpath}/dn-utils dockerfile/Dockerfile ${basedir}/cicd 0 ${basedir}
+${cmdpath}/dn-utils deploy/deploy.yaml ${basedir}/cicd 0 ${basedir}
 
 # build artifactory
 ${basedir}/mvnw clean package
