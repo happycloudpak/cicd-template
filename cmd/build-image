@@ -1,4 +1,5 @@
 #!/bin/bash
+#VERSION:1.0
 
 echo "************* BUILD&PUSH Container image *****************"
 echo "STEP1: Get Parameters"
