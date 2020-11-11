@@ -4,23 +4,21 @@
 DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 
 # get parameters
-if ([ $# -lt 2 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
-  echo "dn-utils <fileuri> <target directory> <executable>"
+if ([ $# -lt 4 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+  echo "dn-utils <fileuri> <target directory> <executable> <root dir>"
   echo " fileuri: download file uri. you can define multiple files using comma. "
   echo " target directory: download location "
-  echo " executable: make it executable file or not. 0 is default. "
-  echo " ex) ./dn-utils cmd/deploy,cmd/deploy-with-config ./cicd/cmd 1"
-  echo " ex) ./dn-utils deploy.yaml ./cicd"
+  echo " executable: make it executable file or not  "
+  echo " root dir: top directory "
+  echo " ex) ./dn-utils cmd/deploy,cmd/deploy-with-config ./cicd/cmd 1 ~/work"
+  echo " ex) ./dn-utils deploy.yaml ./cicd 0 ."
   exit 1
 fi
 
 fileuri=$1
 targetdir=$2
-if [ $# -eq 3 ]; then
-	executable=$3
-else
-	executable=0
-fi
+executable=$3
+basedir=$4
 
 function dnFile() {
 
@@ -42,6 +40,8 @@ function dnFile() {
 
 fn=""
 uri=""
+ver_local=""
+ver_server=""
 
 # split files
 IFS="," read -a files <<< ${fileuri}
@@ -57,13 +57,23 @@ do
 	else
   		fn=${fileuri}
 	fi
-	
+
 	if [ -f ${targetdir}/${fn} ]; then
-		echo "${targetdir}/${fn} => Exists"
+		ver_local=""
+		ver_server=""
+		ver_local=`cat ${targetdir}/${fn} | grep "#VERSION:" | cut -d ":" -f 2 | tr -d " " 2> /dev/null`
+		ver_server=`cat ${basedir}/version.ini | grep ${fn}= | cut -d "=" -f 2 | tr -d " " 2> /dev/null`
+		#echo "${ver_local} vs ${ver_server}"
+		if [ "${ver_local}" == "${ver_server}" ]; then
+			echo "${targetdir}/${fn} => Exists and same version"
+		else
+			echo "${targetdir}/${fn} => Exists and different version(local=${ver_local} vs server=${ver_server})"
+			dnFile
+		fi
 	else
 		echo "${targetdir}/${fn} => NOT exists"
 		dnFile
-	fi	
+	fi
 done
 
 exit 0
