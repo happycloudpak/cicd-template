@@ -22,7 +22,7 @@ echo ""
 
 # set variables from config.properties: converted from '.' to '_'
 echo "STEP2. Set environment variables "
-eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/config-common.properties)
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/cicd-common.properties)
 echo ""
 
 # build image
