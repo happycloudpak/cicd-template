@@ -34,7 +34,7 @@ spec:
         - secretRef:
             name: "{{ SERVICE_NAME }}-secret"           
         ports:
-        - name: port_container
+        - name: containerport
           containerPort: {{ SERVICE_TARGET_PORT }}
         resources:
           requests:
