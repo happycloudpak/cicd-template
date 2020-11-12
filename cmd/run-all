@@ -24,7 +24,7 @@ profile=$4
 basedir=$5
 
 # set download url 환경변수 
-eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cmd/url.ini)
+${basedir}/cicd/cmd/set-url
 
 # download shell if it's not exists
 cmdpath=${basedir}/cicd/cmd
