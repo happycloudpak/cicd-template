@@ -24,7 +24,7 @@ profile=$4
 basedir=$5
 
 # set download url 환경변수 
-${basedir}/cicd/cmd/set-url
+DOWNLOAD_URI=`grep "DOWNLOAD_URI=" ${basedir}/cicd/cmd/url.ini | cut -d "=" -f 2`
 
 # download shell if it's not exists
 cmdpath=${basedir}/cicd/cmd
