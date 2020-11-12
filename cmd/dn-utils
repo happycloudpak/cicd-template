@@ -1,7 +1,5 @@
 #!/bin/bash
 #VERSION:1.0
-# download web page uri
-DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 
 # get parameters
 if ([ $# -lt 4 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
@@ -19,6 +17,9 @@ fileuri=$1
 targetdir=$2
 executable=$3
 basedir=$4
+
+# set download url 환경변수 
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cmd/url.ini)
 
 function dnFile() {
 
