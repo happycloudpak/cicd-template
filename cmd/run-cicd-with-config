@@ -3,6 +3,7 @@
 # MUST change urls properly
 DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 JQ_DOWNLOAD_URL=https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+INGRESS_CONFIG_SERVER=config-server
 
 # get parameters
 if [ $# -eq 5 ]; then
@@ -41,6 +42,7 @@ fi
 
 echo "DOWNLOAD_URI=${DOWNLOAD_URI}" > ${basedir}/cicd/cmd/url.ini
 echo "JQ_DOWNLOAD_URL=${JQ_DOWNLOAD_URL}" >> ${basedir}/cicd/cmd/url.ini
+echo "INGRESS_CONFIG_SERVER=${INGRESS_CONFIG_SERVER}" >> ${basedir}/cicd/cmd/url.ini
 
 shell=run-all-with-config
 # download shell if it's not exists
