@@ -19,7 +19,7 @@ executable=$3
 basedir=$4
 
 # set download url 환경변수 
-${basedir}/cicd/cmd/set-url
+DOWNLOAD_URI=`grep "DOWNLOAD_URI=" ${basedir}/cicd/cmd/url.ini | cut -d "=" -f 2`
 
 function dnFile() {
 
