@@ -7,18 +7,20 @@ echo "STEP1: Get Parameters"
 
 # get parameters
 if ([ $# -lt 4 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
-  echo "build-image-with-config <reg username> <reg password> <root directory>"
+  echo "build-image-with-config <reg username> <reg password> <root directory> <dev lang>"
   echo " reg username: container image registry username "
   echo " reg password: container image registry password "
   echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
-  echo " ex) ./build-image-with-config user1 password1 ~/work"
-  echo " ex) ./build-image-with-config user1 password1 ."
+  echo " dev lang: 개발 언어 (java, nodejs)
+  echo " ex) ./build-image-with-config user1 password1 ~/work java"
+  echo " ex) ./build-image-with-config user1 password1 . nodejs"
   exit 1
 fi
 
 username=$1
 password=$2
 basedir=$3
+devlang=$4
 echo ""
 
 # set variables from config.properties: converted from '.' to '_'
@@ -26,14 +28,38 @@ echo "STEP2. Set environment variables "
 eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cicd.properties)
 echo ""
 
+# generte Dockerfile
+echo "STEP3. Generate Dockerfile "
+
+base_image=""
+copy_artifactory=""
+exec_command=""
+
+if [ "${devlang}" == "java" ]; then
+  base_image=openjdk:8-jdk-alpine
+  copy_artifactory=COPY ./target/${ARTIFACTORY_FILE} ${ARTIFACTORY_HOME}
+  exec_command=java -jar ${ARTIFACTORY_FILE} --spring.profiles.active=${PROFILE}
+elif [ "${devlang}" == "nodejs" ]; then
+  base_image=node:slim
+  copy_artifactory=COPY . ./
+  exec_command=node app
+else
+  echo "NOT Supported Language!"
+  exit 1
+fi
+
+sed "s@{{ BASE_IMAGE }}@${base_image}@g" ${basedir}/cicd/Dockerfile | \
+sed "s@{{ COPY_ARTIFACTORY }}@${copy_artifactory}@g" - | \
+sed "s@{{ EXEC_COMMAND }}@${exec_command}@g" - > ${basedir}/cicd/Dockerfile-converted
+
 # build image
-echo "STEP3. Build image "
+echo "STEP4. Build image "
 echo "image: ${image_registry}/${image_project}/${image_repository}:${image_tag}"
-docker build --build-arg ARTIFACTORY_FILE=${image_repository}.jar -f ${basedir}/cicd/Dockerfile -t ${image_registry}/${image_project}/${image_repository}:${image_tag} ${basedir}
+docker build --build-arg ARTIFACTORY_FILE=${image_repository}.jar -f ${basedir}/cicd/Dockerfile-converted -t ${image_registry}/${image_project}/${image_repository}:${image_tag} ${basedir}
 echo ""
 
 # login image registry to push image: parameters are provided from bamboo pipeline.
-echo "STEP4. Login & Push image "
+echo "STEP5. Login & Push image "
 docker login ${image_registry} -u  ${username} -p ${password}
 if [ $? == 1 ]; then
   echo "****** FAIL to login image registry: username is $1"
