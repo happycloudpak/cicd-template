@@ -38,15 +38,15 @@ spec:
         - secretRef:
             name: "{{ SERVICE_NAME }}-secret-{{ PROFILE }}"
         ports:
-        - name: port1
-          containerPort: 18180
+        - name: port_container
+          containerPort: {{ SERVICE_TARGET_PORT }}
         resources:
           requests:
-            cpu: 128m
-            memory: 128Mi
+            cpu: {{ REQ_CPU }}
+            memory: {{ REQ_MEM }}
           limits:
-            cpu: 512m
-            memory: 1024Mi
+            cpu: {{ LIMIT_CPU }}
+            memory: {{ LIMIT MEM }}
 ---
 apiVersion: v1
 kind: Service
