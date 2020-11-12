@@ -19,7 +19,7 @@ executable=$3
 basedir=$4
 
 # set download url 환경변수 
-eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cmd/url.ini)
+${basedir}/cicd/cmd/set-url
 
 function dnFile() {
 
