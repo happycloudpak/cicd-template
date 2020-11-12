@@ -140,6 +140,10 @@ sed "s@{{ SERVICE_PORT }}@${service_port}@g" - | \
 sed "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" - | \
 sed "s@{{ EUREKA_SERVERS }}@${eureka_servers}@g" - | \
 sed "s@{{ PROFILE }}@${profile}@g" - | \
+sed "s@{{ REQ_CPU }}@${req_cpu}@g" - | \
+sed "s@{{ REQ_MEM }}@${req_mem}@g" - | \
+sed "s@{{ LIMIT_CPU }}@${limit_cpu}@g" - | \
+sed "s@{{ LIMIT_MEM }}@${limit_mem}@g" - | \
 sed "s@{{ SERVICE_HOST }}@${service_host}@g" - > ${basedir}/cicd/deploy-converted.yaml
 
 if [ $? -eq 0 ]; then
