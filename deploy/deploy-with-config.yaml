@@ -42,7 +42,7 @@ spec:
             memory: {{ REQ_MEM }}
           limits:
             cpu: {{ LIMIT_CPU }}
-            memory: {{ LIMIT MEM }}
+            memory: {{ LIMIT_MEM }}
 ---
 apiVersion: v1
 kind: Service
