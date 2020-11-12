@@ -25,9 +25,6 @@ if [ "${appname}" == "" ]; then
 	exit 1
 fi
 
-# set download url 환경변수 
-${basedir}/cicd/cmd/set-url
-
 function mkFile() {
 	#echo "Donwload config file: ${fn} from ${url}"
 
@@ -58,6 +55,10 @@ function mkFile() {
     	fi
 	done
 }
+
+# set download url 환경변수 
+JQ_DOWNLOAD_URL=`grep "JQ_DOWNLOAD_URL=" ${basedir}/cicd/cmd/url.ini | cut -d "=" -f 2`
+INGRESS_CONFIG_SERVER=`grep "INGRESS_CONFIG_SERVER=" ${basedir}/cicd/cmd/url.ini | cut -d "=" -f 2`
 
 # install jq
 echo "STEP2. Check jq program and install it if not"
