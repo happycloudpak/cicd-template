@@ -1,12 +1,20 @@
 #!/bin/bash
-#VERSION:1.0
 
 # get parameters
-read -p "# container image registry 로그인 username: " username
-read -p "# container image registry 로그인 password: " password
-read -p "# kubernetes context name(현재 context는 .): " context
-read -p "# 배포대상 프로파일(dev,prod중 선택): " profile
-read -p "# base directory(현재 directory는 .): " basedir
+if [ $# -eq 5 ]; then
+	username=$1
+	password=$2
+	context=$3
+	profile=$4
+	basedir=$5
+else
+	read -p "# container image registry 로그인 username: " username
+	read -p "# container image registry 로그인 password: " password
+	read -p "# kubernetes context name(현재 context는 .): " context
+	read -p "# 배포대상 프로파일(dev,prod중 선택): " profile
+	read -p "# base directory(현재 directory는 .): " basedir
+fi
+
 if [ "${profile}" == "dev" ] || [ "${profile}" == "prod" ]; then
 	echo "#### Copy below commands #####"
 	echo "# Build & Deploy "
@@ -18,7 +26,7 @@ if [ "${profile}" == "dev" ] || [ "${profile}" == "prod" ]; then
 	echo "# Clear all"
 	echo "${basedir}/cicd/cmd/clear-all-with-config ${basedir}"
 	echo ""
-	read -n 1 -p "# Do you want to continue?(y.n) ... " cont
+	read -n 1 -p "# Do you want to continue?(y/n) ... " cont
 	echo ""
 	if [ "${cont}" != "y" ]; then exit 0; fi
 
