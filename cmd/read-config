@@ -4,10 +4,6 @@ echo ""
 echo "************** RUN READ CONFIG ***************"
 echo ""
 
-# check below variables and update if it's needed
-INGRESS_CONFIG_SERVER=config-server
-JQ_DOWNLOAD_URL=https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-
 echo "STEP1. Get parameters "
 # get parameters
 if ([ $# -lt 3 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
@@ -28,6 +24,9 @@ if [ "${appname}" == "" ]; then
 	echo "CAN'T get application name. check <name> in pom.xml"
 	exit 1
 fi
+
+# set download url 환경변수 
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cmd/url.ini)
 
 function mkFile() {
 	#echo "Donwload config file: ${fn} from ${url}"
