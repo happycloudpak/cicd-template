@@ -22,7 +22,7 @@ spec:
       containers:
       - name: {{ SERVICE_NAME }}
         image: {{ IMAGE_NAME }}
-        imagePullPolicy: Always
+        imagePullPolicy: {{ IMAGE_PULL_POLICY }}
         env:
         - name: SERVER_PORT
           value: "{{ SERVICE_TARGET_PORT }}" 
