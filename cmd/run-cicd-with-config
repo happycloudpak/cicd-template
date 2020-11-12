@@ -1,5 +1,6 @@
 #!/bin/bash
 
+DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 # get parameters
 if [ $# -eq 5 ]; then
 	username=$1
@@ -40,7 +41,7 @@ shell=run-all-with-config
 cmdpath=${basedir}/cicd/cmd
 
 mkdir -p ${cmdpath} 2> /dev/null
-wget -O ${cmdpath}/${shell} https://happycloudpak.github.io/cicd-template/cmd/${shell}
+wget -O ${cmdpath}/${shell} ${DOWNLOAD_URI}/cmd/${shell}
 if [ $? -eq 1 ]; then
 	echo "CAN'T download ${cmdpath}/${shell}"
 	exit 1
