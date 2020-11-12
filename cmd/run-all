@@ -3,7 +3,6 @@
 
 echo "************** RUN ALL ***************"
 echo ""
-DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 
 # get parameters
 if ([ $# -lt 5 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
@@ -23,6 +22,9 @@ password=$2
 context=$3
 profile=$4
 basedir=$5
+
+# set download url 환경변수 
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cmd/url.ini)
 
 # download shell if it's not exists
 cmdpath=${basedir}/cicd/cmd
