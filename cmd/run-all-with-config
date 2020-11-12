@@ -2,6 +2,7 @@
 #VERSION:1.0
 echo "************** RUN ALL ***************"
 echo ""
+DOWNLOAD_URI=https://happycloudpak.github.io/cicd-template
 
 # get parameters
 if ([ $# -lt 5 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
@@ -27,7 +28,7 @@ cmdpath=${basedir}/cicd/cmd
 which ${cmdpath}/dn-utils 2> /dev/null
 if [ $? -eq 1 ]; then
 	mkdir -p ${cmdpath} 2> /dev/null
-	wget -O ${cmdpath}/dn-utils https://happycloudpak.github.io/cicd-template/cmd/dn-utils
+	wget -O ${cmdpath}/dn-utils ${DOWNLOAD_URI}/cmd/dn-utils
 	if [ $? -eq 1 ]; then
 		echo "CAN'T download ${cmdpath}/dn-utils"
 		exit 1
