@@ -71,9 +71,9 @@ echo ""
 # set variables from config.properties: converted from '.' to '_'
 echo "STEP2. Set environment variables "
 
-eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/config-common.properties)
+eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/cicd-common.properties)
 if [ "${profile}" != "" ]; then
-	eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/config-${profile}.properties)
+	eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/config/cicd-${profile}.properties)
 fi
 echo ""
 
