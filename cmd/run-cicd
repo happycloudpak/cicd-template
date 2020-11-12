@@ -39,9 +39,13 @@ else
 	exit 0
 fi
 
-echo "DOWNLOAD_URI=${DOWNLOAD_URI}" > ${basedir}/cicd/cmd/url.ini
-echo "JQ_DOWNLOAD_URL=${JQ_DOWNLOAD_URL}" >> ${basedir}/cicd/cmd/url.ini
-echo "INGRESS_CONFIG_SERVER=${INGRESS_CONFIG_SERVER}" >> ${basedir}/cicd/cmd/url.ini
+# make shell for setting url values
+echo "#!/bin/bash" > ${basedir}/cicd/cmd/set-url
+echo "export DOWNLOAD_URI=${DOWNLOAD_URI}" > ${basedir}/cicd/cmd/set-url
+echo "export JQ_DOWNLOAD_URL=${JQ_DOWNLOAD_URL}" >> ${basedir}/cicd/cmd/set-url
+echo "export INGRESS_CONFIG_SERVER=${INGRESS_CONFIG_SERVER}" >> ${basedir}/cicd/cmd/set-url
+echo "exit 0" >> ${basedir}/cicd/cmd/set-url
+chmod +x ${basedir}/cicd/cmd/set-url
 
 shell=run-all
 # download shell if it's not exists
