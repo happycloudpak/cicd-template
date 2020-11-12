@@ -4,7 +4,7 @@ echo "************** RUN ALL ***************"
 echo ""
 
 # get parameters
-if ([ $# -lt 5 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+if ([ $# -lt 6 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
   echo "run-all-with-config <reg username> <reg password> <k8s-context> <profile> <root directory>"
   echo " reg username: container image registry username "
   echo " reg password: container image registry password "
