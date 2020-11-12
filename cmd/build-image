@@ -5,7 +5,7 @@ echo "************* BUILD&PUSH Container image *****************"
 echo "STEP1: Get Parameters"
 
 # get parameters
-if ([ $# -lt 3 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
+if ([ $# -lt 4 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); then
   echo "build-image <reg username> <reg password> <root directory>"
   echo " reg username: container image registry username "
   echo " reg password: container image registry password "
