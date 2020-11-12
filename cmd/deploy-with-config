@@ -128,6 +128,7 @@ sed "s@{{ SERVICE_NAME }}@${image_repository}@g" ${basedir}/cicd/deploy-with-con
 sed "s@{{ NAMESPACE }}@${namespace}@g" - | \
 sed "s@{{ SERVICEACCOUNT }}@${serviceaccount}@g" - | \
 sed "s@{{ IMAGE_NAME }}@${IMG}@g" - | \
+sed "s@{{ IMAGE_PULL_POLICY }}@${image_pull_policy}@g" - | \
 sed "s@{{ SERVICE_TARGET_PORT }}@${service_target_port}@g" - | \
 sed "s@{{ SERVICE_PORT }}@${service_port}@g" - | \
 sed "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" - | \
