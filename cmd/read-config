@@ -26,7 +26,7 @@ if [ "${appname}" == "" ]; then
 fi
 
 # set download url 환경변수 
-eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cmd/url.ini)
+${basedir}/cicd/cmd/set-url
 
 function mkFile() {
 	#echo "Donwload config file: ${fn} from ${url}"
