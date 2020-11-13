@@ -11,7 +11,7 @@ if ([ $# -lt 6 ]) || ([ $# -eq 1 ] && [ "$1" == "-h" -o "$1" == "--help" ]); the
   echo " k8s-context: 사용할 k8s context명. kubectl config view로 context 목록 확인. '.'은 현재 컨텍스트 의미함 "
   echo " profile: 배포대상 환경 프로파일(ex:dev, prod)"  
   echo " root directory: project의 최상위 디렉토리. '.'은 현재 디렉토리 의미함. "
-  echo " dev lang: 개발 언어 (java, nodejs)
+  echo " dev lang: 개발 언어 (java, nodejs)"
   echo " ex) ./run-all-with-config user1 password1 kubernetes-admin@kubernetes prod ~/work java"
   echo " ex) ./run-all-with-config user1 password1 . prod . nodejs"
   exit 1
