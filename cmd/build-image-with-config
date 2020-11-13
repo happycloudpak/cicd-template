@@ -36,13 +36,13 @@ copy_artifactory=""
 exec_command=""
 
 if [ "${devlang}" == "java" ]; then
-  base_image=openjdk:8-jdk-alpine
-  copy_artifactory=COPY ./target/${ARTIFACTORY_FILE} ${ARTIFACTORY_HOME}
-  exec_command=java -jar ${ARTIFACTORY_FILE} --spring.profiles.active=${PROFILE}
+  base_image="openjdk:8-jdk-alpine"
+  copy_artifactory="COPY ./target/\${ARTIFACTORY_FILE} \${ARTIFACTORY_HOME}"
+  exec_command="java -jar \${ARTIFACTORY_FILE} --spring.profiles.active=\${PROFILE}"
 elif [ "${devlang}" == "nodejs" ]; then
-  base_image=node:slim
-  copy_artifactory=COPY . ./
-  exec_command=node app
+  base_image="node:slim"
+  copy_artifactory="COPY . ./"
+  exec_command="node app"
 else
   echo "NOT Supported Language!"
   exit 1
