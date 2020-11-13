@@ -24,6 +24,7 @@ if [ "${appname}" == "" ]; then
 	echo "CAN'T get application name. check <name> in pom.xml"
 	exit 1
 fi
+CONFIG_KIND=""
 
 function mkFile() {
 	#echo "Donwload config file: ${fn} from ${url}"
@@ -38,7 +39,9 @@ function mkFile() {
   	for ((i=0;i<$len;i++));
   	do
     	nm=`./jq ".propertySources[$i].name" ${fn}`
-    	if [[ "$nm" =~ ".properties" ]]; then
+	if [ "${CONFIG_KIND}" == "secret" ] && [[ "$nm" =~ "application.properties" ]]; then
+		echo ""
+	elif [[ "$nm" =~ ".properties" ]]; then
       		#echo "$i => $nm"
 
       		chk=`./jq ".propertySources[$i].source" ${fn} > $i-${fn}`
@@ -85,8 +88,10 @@ uri="http://${host}/${appname}"
 echo "STEP5. Generate config file "
 
 configs=`echo ${config_kinds} | sed "s/,/ /g"`
+
 for kind in ${configs}
 do
+  CONFIG_KIND=${kind}
   echo "read config ->  ${kind}"
   fn=${kind}.json
   url=${uri}/${kind}-common,${kind}-${profile}
