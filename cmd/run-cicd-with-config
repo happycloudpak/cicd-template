@@ -6,7 +6,7 @@ JQ_DOWNLOAD_URL=https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux
 INGRESS_CONFIG_SERVER=config-server
 
 # get parameters
-if [ $# -eq 5 ]; then
+if [ $# -eq 6 ]; then
 	username=$1
 	password=$2
 	context=$3
