@@ -77,7 +77,7 @@ eval $(${basedir}/cicd/cmd/set-env ${basedir}/cicd/cicd.properties)
 # read configuration
 ${basedir}/cicd/cmd/read-config ${profile} ${basedir} cm,secret
 if [ $? -eq 1 ]; then exit 1; fi
-    
+
 echo ""
 
 # switch kubenetes context
@@ -104,7 +104,10 @@ echo ""
 echo "STEP5. Create ConfigMap "
 
 cm="${image_repository}-cm"
-filepath=${basedir}/cicd/cm.properties
+# 현재 배포 대상 profile에 맞는 변수 셋팅을 위해 _dev또는 _prod붙어 있는 변수에서 _dev또는_prod를 제거함
+# 예) mq_host_dev => mq_host
+sed "s@_${profile}=@=@g" ${basedir}/cicd/cm.properties > ${basedir}/cicd/cm-converted.properties
+filepath=${basedir}/cicd/cm-converted.properties
 generate-cm
 if [ "${RESULT}" == "NK" ]; then exit 1; fi
 
@@ -114,7 +117,8 @@ echo ""
 echo "STEP6. Create Secret "
 
 secret="${image_repository}-secret"
-filepath=${basedir}/cicd/secret.properties
+sed "s@_${profile}=@=@g" ${basedir}/cicd/secret.properties > ${basedir}/cicd/secret-converted.properties
+filepath=${basedir}/cicd/secret-converted.properties
 generate-secret
 if [ "${RESULT}" == "NK" ]; then exit 1; fi
 
