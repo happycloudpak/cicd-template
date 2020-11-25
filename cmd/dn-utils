@@ -45,14 +45,14 @@ ver_local=""
 ver_server=""
 
 # split files
-IFS="," read -a files <<< ${fileuri}
+IFS="," read -a files <<< "${fileuri}"
 
 for ((i=0;i<${#files[@]};i++))
 do
 	uri=${files[i]}
 
 	if [[ "${uri}" =~ "/" ]]; then
-  		IFS="/" read -a lists <<< ${uri}
+  		IFS="/" read -a lists <<< "${uri}"
   		len=${#lists[@]}
   		fn=${lists[$len-1]}
 	else
