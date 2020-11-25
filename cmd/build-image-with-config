@@ -48,9 +48,11 @@ else
   exit 1
 fi
 
-sed "s@{{ BASE_IMAGE }}@${base_image}@g" ${basedir}/cicd/Dockerfile | \
-sed "s@{{ COPY_ARTIFACTORY }}@${copy_artifactory}@g" - | \
-sed "s@{{ EXEC_COMMAND }}@${exec_command}@g" - > ${basedir}/cicd/Dockerfile-converted
+srcfile=${basedir}/cicd/Dockerfile
+tmpfile=${basedir}/cicd/tmp
+sed "s@{{ BASE_IMAGE }}@${base_image}@g" ${srcfile} > ${tmpfile} && mv ${tmpfile} ${srcfile}
+sed "s@{{ COPY_ARTIFACTORY }}@${copy_artifactory}@g" ${srcfile} > ${tmpfile} && mv ${tmpfile} ${srcfile}
+sed "s@{{ EXEC_COMMAND }}@${exec_command}@g" ${srcfile} > ${basedir}/cicd/Dockerfile-converted
 
 # build image
 echo "STEP4. Build image "
