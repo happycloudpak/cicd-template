@@ -131,21 +131,24 @@ echo ""
 echo "STEP7. Deploy application "
 
 IMG="${image_registry}\/${image_project}\/${image_repository}:${image_tag}"
+
+#Mac과 linux 모두에서 동작하기 위해 workaround적용 
 yaml=${basedir}/cicd/deploy.yaml
-sed -i "" "s@{{ SERVICE_NAME }}@${image_repository}@g" ${yaml}
-sed -i "" "s@{{ NAMESPACE }}@${namespace}@g" ${yaml}
-sed -i "" "s@{{ SERVICEACCOUNT }}@${serviceaccount}@g" ${yaml}
-sed -i "" "s@{{ IMAGE_NAME }}@${IMG}@g" ${yaml}
-sed -i "" "s@{{ IMAGE_PULL_POLICY }}@${image_pull_policy}@g" ${yaml}
-sed -i "" "s@{{ SERVICE_TARGET_PORT }}@${service_target_port}@g" ${yaml}
-sed -i "" "s@{{ SERVICE_PORT }}@${service_port}@g" ${yaml}
-sed -i "" "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" ${yaml}
-sed -i "" "s@{{ EUREKA_SERVERS }}@${eureka_servers}@g" ${yaml}
-sed -i "" "s@{{ PROFILE }}@${profile}@g" ${yaml}
-sed -i "" "s@{{ REQ_CPU }}@${req_cpu}@g" ${yaml}
-sed -i "" "s@{{ REQ_MEM }}@${req_mem}@g" ${yaml}
-sed -i "" "s@{{ LIMIT_CPU }}@${limit_cpu}@g" ${yaml}
-sed -i "" "s@{{ LIMIT_MEM }}@${limit_mem}@g" ${yaml}
+tmp=${basedir}/cicd/tmp.yaml
+sed "s@{{ SERVICE_NAME }}@${image_repository}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ NAMESPACE }}@${namespace}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ SERVICEACCOUNT }}@${serviceaccount}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ IMAGE_NAME }}@${IMG}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ IMAGE_PULL_POLICY }}@${image_pull_policy}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ SERVICE_TARGET_PORT }}@${service_target_port}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ SERVICE_PORT }}@${service_port}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ EUREKA_SERVERS }}@${eureka_servers}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ PROFILE }}@${profile}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ REQ_CPU }}@${req_cpu}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ REQ_MEM }}@${req_mem}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ LIMIT_CPU }}@${limit_cpu}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
+sed "s@{{ LIMIT_MEM }}@${limit_mem}@g" ${yaml} > ${tmp} && mv ${tmp} ${yaml}
 sed "s@{{ SERVICE_HOST }}@${service_host}@g" ${yaml} > ${basedir}/cicd/deploy-converted.yaml
 
 if [ $? -eq 0 ]; then
