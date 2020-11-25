@@ -131,21 +131,22 @@ echo ""
 echo "STEP7. Deploy application "
 
 IMG="${image_registry}\/${image_project}\/${image_repository}:${image_tag}"
-sed "s@{{ SERVICE_NAME }}@${image_repository}@g" ${basedir}/cicd/deploy.yaml | \
-sed "s@{{ NAMESPACE }}@${namespace}@g" - | \
-sed "s@{{ SERVICEACCOUNT }}@${serviceaccount}@g" - | \
-sed "s@{{ IMAGE_NAME }}@${IMG}@g" - | \
-sed "s@{{ IMAGE_PULL_POLICY }}@${image_pull_policy}@g" - | \
-sed "s@{{ SERVICE_TARGET_PORT }}@${service_target_port}@g" - | \
-sed "s@{{ SERVICE_PORT }}@${service_port}@g" - | \
-sed "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" - | \
-sed "s@{{ EUREKA_SERVERS }}@${eureka_servers}@g" - | \
-sed "s@{{ PROFILE }}@${profile}@g" - | \
-sed "s@{{ REQ_CPU }}@${req_cpu}@g" - | \
-sed "s@{{ REQ_MEM }}@${req_mem}@g" - | \
-sed "s@{{ LIMIT_CPU }}@${limit_cpu}@g" - | \
-sed "s@{{ LIMIT_MEM }}@${limit_mem}@g" - | \
-sed "s@{{ SERVICE_HOST }}@${service_host}@g" - > ${basedir}/cicd/deploy-converted.yaml
+yaml=${basedir}/cicd/deploy.yaml
+sed -i "" "s@{{ SERVICE_NAME }}@${image_repository}@g" ${yaml}
+sed -i "" "s@{{ NAMESPACE }}@${namespace}@g" ${yaml}
+sed -i "" "s@{{ SERVICEACCOUNT }}@${serviceaccount}@g" ${yaml}
+sed -i "" "s@{{ IMAGE_NAME }}@${IMG}@g" ${yaml}
+sed -i "" "s@{{ IMAGE_PULL_POLICY }}@${image_pull_policy}@g" ${yaml}
+sed -i "" "s@{{ SERVICE_TARGET_PORT }}@${service_target_port}@g" ${yaml}
+sed -i "" "s@{{ SERVICE_PORT }}@${service_port}@g" ${yaml}
+sed -i "" "s@{{ SERVICE_REPLICAS }}@${service_replicas}@g" ${yaml}
+sed -i "" "s@{{ EUREKA_SERVERS }}@${eureka_servers}@g" ${yaml}
+sed -i "" "s@{{ PROFILE }}@${profile}@g" ${yaml}
+sed -i "" "s@{{ REQ_CPU }}@${req_cpu}@g" ${yaml}
+sed -i "" "s@{{ REQ_MEM }}@${req_mem}@g" ${yaml}
+sed -i "" "s@{{ LIMIT_CPU }}@${limit_cpu}@g" ${yaml}
+sed -i "" "s@{{ LIMIT_MEM }}@${limit_mem}@g" ${yaml}
+sed "s@{{ SERVICE_HOST }}@${service_host}@g" ${yaml} > ${basedir}/cicd/deploy-converted.yaml
 
 if [ $? -eq 0 ]; then
     kubectl apply -f ${basedir}/cicd/deploy-converted.yaml
